@@ -1,0 +1,7 @@
+# 母版原图（约 48 MB，不纳入版本库；网页成品在 assets/）
+pool/
+
+# 系统与编辑器临时文件
+.DS_Store
+Thumbs.db
+*.tmp

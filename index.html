@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鱼类图鉴</title>
+<style>
+:root{--bg:#f1f7f9;--card:#fff;--ink:#1b3641;--muted:#6c8792;--line:#dbe9ee;
+--accent:#1b6b8a;--soft:#e3f1f6;--shadow:0 6px 28px rgba(27,107,138,.10)}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
+ display:flex;flex-direction:column;min-height:100vh}
+header{padding:18px 28px 12px;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+h1{margin:0;font-size:23px;letter-spacing:3px;font-weight:700}
+header .sub{font-size:13px;color:var(--muted)}
+header .count{margin-left:auto;font-size:13px;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:1px}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,1fr);
+ gap:24px;padding:6px 28px 20px;align-items:center;min-height:0}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;
+ background:var(--card);border:1px solid var(--line);border-radius:16px;
+ box-shadow:var(--shadow);padding:16px 62px;min-height:0;overflow:hidden}
+.photo{width:100%;display:flex;align-items:center;justify-content:center}
+.photo img{width:100%;max-width:860px;height:auto;max-height:min(62vh,620px);
+ object-fit:contain;border-radius:10px;display:block;background:#eef4f6;
+ cursor:zoom-in;animation:fade .32s ease both}
+@keyframes fade{from{opacity:0;transform:scale(1.015)}to{opacity:1;transform:scale(1)}}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;
+ border:1px solid var(--line);background:rgba(255,255,255,.92);color:var(--accent);
+ font-size:30px;line-height:1;border-radius:10px;cursor:pointer;transition:.15s;z-index:2}
+.nav:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.nav.prev{left:10px}.nav.next{right:10px}
+.stage .tip{position:absolute;bottom:10px;left:0;right:0;text-align:center;
+ font-size:11px;color:var(--muted);pointer-events:none}
+.info{background:var(--card);border:1px solid var(--line);border-radius:16px;
+ box-shadow:var(--shadow);padding:26px 28px;max-height:min(66vh,660px);overflow:auto}
+.no{font-size:12px;color:var(--accent);letter-spacing:2px;font-weight:600}
+.info h2{margin:8px 0 6px;font-size:34px;letter-spacing:4px;font-weight:700}
+.alias{font-size:14px;color:var(--muted);margin-bottom:12px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tag{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--soft);color:var(--accent)}
+.tag.latin{background:#f2f5f6;color:var(--muted);font-style:italic}
+.desc{font-size:15px;line-height:1.95;color:#314b56;margin:0 0 20px;text-align:justify}
+.traits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.trait{background:#f7fbfc;border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.trait b{display:block;font-size:11px;color:var(--accent);letter-spacing:1px;margin-bottom:5px}
+.trait span{font-size:12px;line-height:1.55;color:#415c66}
+.note{margin-top:16px;padding:10px 12px;border-left:3px solid #d9a441;
+ background:#fdf8ec;border-radius:0 8px 8px 0;font-size:12px;line-height:1.7;color:#7a5b16}
+.strip{border-top:1px solid var(--line);background:var(--card);padding:10px 28px 14px}
+.strip .stitle{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:8px}
+.thumbs{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:3px 2px 8px;
+ scroll-behavior:smooth;scrollbar-width:thin}
+.thumbs::-webkit-scrollbar{height:6px}
+.thumbs::-webkit-scrollbar-thumb{background:#c8dce3;border-radius:3px}
+.thumb{flex:0 0 124px;border:2px solid transparent;border-radius:9px;overflow:hidden;
+ cursor:pointer;background:#f5fafb;transition:.18s;text-align:center}
+.thumb:hover{border-color:#9fc6d5;transform:translateY(-2px)}
+.thumb.on{border-color:var(--accent);box-shadow:0 3px 12px rgba(27,107,138,.22)}
+.thumb img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.thumb div{font-size:12px;padding:4px 2px;color:var(--muted);white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis}
+.thumb.on div{color:var(--accent);font-weight:600}
+#lb{position:fixed;inset:0;background:rgba(12,28,35,.9);display:none;
+ align-items:center;justify-content:center;z-index:20;cursor:zoom-out;padding:26px}
+#lb img{max-width:100%;max-height:90vh;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.5)}
+#lb span{position:absolute;top:18px;right:26px;color:#fff;font-size:13px}
+@media(max-width:900px){
+ header{padding:14px 14px 8px}h1{font-size:20px}
+ main{grid-template-columns:1fr;gap:14px;padding:4px 14px 14px}
+ .stage{padding:12px 50px}.photo img{max-height:44vh}
+ .info{max-height:none;padding:18px}.info h2{font-size:27px}
+ .strip{padding:8px 14px 12px}.thumb{flex-basis:100px}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>鱼类图鉴</h1>
+ <span class="sub">18 种淡水鱼 · 图片统一 1000 × 750 · 已去除水印</span>
+ <span class="count" id="count"></span>
+</header>
+<main>
+ <section class="stage">
+  <button class="nav prev" id="prev" aria-label="上一种">‹</button>
+  <div class="photo"><img id="mainImg" src="" alt=""></div>
+  <button class="nav next" id="next" aria-label="下一种">›</button>
+  <div class="tip">← → 方向键切换 · 点击大图放大</div>
+ </section>
+ <aside class="info">
+  <div class="no" id="no"></div>
+  <h2 id="name"></h2>
+  <div class="alias" id="alias"></div>
+  <div class="meta" id="meta"></div>
+  <p class="desc" id="desc"></p>
+  <div class="traits" id="traits"></div>
+  <div id="noteBox"></div>
+ </aside>
+</main>
+<footer class="strip">
+ <div class="stitle">全部鱼类 · 点击缩略图直接跳转（可横向滚动 / 滚轮）</div>
+ <div class="thumbs" id="thumbs"></div>
+</footer>
+<div id="lb"><span>点击任意处关闭 / Esc</span><img id="lbimg" src="" alt=""></div>
+<script>
+const FISH = [
+  {
+    "file": "白鲢",
+    "name": "白鲢",
+    "alias": "鲢鱼 · 白鲢子 · 跳鲢",
+    "latin": "Hypophthalmichthys molitrix",
+    "family": "鲤科 · 鲢亚科",
+    "desc": "体侧扁、头较大，鳞细，通体银白，眼位偏低。属中上层滤食性鱼类，主要滤食浮游植物，性情活泼善跳跃，是「四大家鱼」之一，也是湖泊水库常见的净水鱼种。",
+    "traits": [
+      [
+        "形态",
+        "体侧扁 · 银白细鳞"
+      ],
+      [
+        "栖息",
+        "水体中上层 · 喜肥水"
+      ],
+      [
+        "食性",
+        "滤食浮游植物"
+      ]
+    ],
+    "img": "assets/白鲢.jpg",
+    "thumb": "assets/thumb/白鲢.jpg"
+  },
+  {
+    "file": "花鲢",
+    "name": "花鲢",
+    "alias": "鳙鱼 · 胖头鱼 · 大头鱼 · 黄鲢",
+    "latin": "Aristichthys nobilis",
+    "family": "鲤科 · 鲢亚科",
+    "desc": "头极宽大，约占体长三分之一，故称「胖头鱼」；体侧散布不规则暗色花斑，与通体银白的白鲢区别明显。中上层滤食性鱼类，以浮游动物为主食，常与鲢鱼搭配混养，同为「四大家鱼」，鱼头是经典食材。",
+    "traits": [
+      [
+        "形态",
+        "头大宽 · 体侧暗斑"
+      ],
+      [
+        "栖息",
+        "中上层 · 缓流水域"
+      ],
+      [
+        "食性",
+        "滤食浮游动物"
+      ]
+    ],
+    "img": "assets/花鲢.jpg",
+    "thumb": "assets/thumb/花鲢.jpg"
+  },
+  {
+    "file": "草鱼",
+    "name": "草鱼",
+    "alias": "鲩鱼 · 草鲩 · 白鲩",
+    "latin": "Ctenopharyngodon idella",
+    "family": "鲤科 · 雅罗鱼亚科",
+    "desc": "体延长近圆筒形，鳞片边缘灰黑形成清晰网纹，体色青黄、各鳍灰白。中下层草食性鱼类，以水草和陆生禾草为主食，生长快、产量高，是四大家鱼中养殖最广的一种。",
+    "traits": [
+      [
+        "形态",
+        "圆筒形 · 网纹大鳞"
+      ],
+      [
+        "栖息",
+        "中下层 · 水草区"
+      ],
+      [
+        "食性",
+        "草食"
+      ]
+    ],
+    "img": "assets/草鱼.jpg",
+    "thumb": "assets/thumb/草鱼.jpg"
+  },
+  {
+    "file": "青鱼",
+    "name": "青鱼",
+    "alias": "黑鲩 · 青鲩 · 螺蛳青",
+    "latin": "Mylopharyngodon piceus",
+    "family": "鲤科 · 雅罗鱼亚科",
+    "desc": "体延长近圆筒，体色青黑、各鳍深灰，外形似草鱼而色明显更深。底层肉食性鱼类，主食螺、蚌、蚬等软体动物，咽齿呈臼状便于压碎贝壳，为「四大家鱼」之一。",
+    "traits": [
+      [
+        "形态",
+        "青黑圆筒 · 鳍深色"
+      ],
+      [
+        "栖息",
+        "水体底层"
+      ],
+      [
+        "食性",
+        "螺蚌等软体动物"
+      ]
+    ],
+    "img": "assets/青鱼.jpg",
+    "thumb": "assets/thumb/青鱼.jpg"
+  },
+  {
+    "file": "鲤鱼",
+    "name": "鲤鱼",
+    "alias": "鲤拐子 · 黄河鲤",
+    "latin": "Cyprinus carpio",
+    "family": "鲤科",
+    "desc": "体侧扁而肥厚、背部隆起，口部具两对须，鳞片大，尾鳍下叶常带橙红。底层杂食性，喜用吻部拱掘底泥觅食，适应力强，是我国分布最广、养殖历史最悠久的淡水鱼。",
+    "traits": [
+      [
+        "形态",
+        "两对须 · 大鳞"
+      ],
+      [
+        "栖息",
+        "底层 · 缓流静水"
+      ],
+      [
+        "食性",
+        "杂食 · 拱泥觅食"
+      ]
+    ],
+    "img": "assets/鲤鱼.jpg",
+    "thumb": "assets/thumb/鲤鱼.jpg"
+  },
+  {
+    "file": "鲫鱼",
+    "name": "鲫鱼",
+    "alias": "鲫瓜子 · 土鲫",
+    "latin": "Carassius auratus",
+    "family": "鲤科",
+    "desc": "体高侧扁、背部隆起，银灰大鳞，口端位无须；形似鲤鱼但体型较小且无须。底层杂食性，耐低氧、耐低温，几乎遍布各类淡水水体，也是观赏金鱼的野生原种。",
+    "traits": [
+      [
+        "形态",
+        "高背侧扁 · 无须"
+      ],
+      [
+        "栖息",
+        "底层 · 适应力强"
+      ],
+      [
+        "食性",
+        "杂食"
+      ]
+    ],
+    "img": "assets/鲫鱼.jpg",
+    "thumb": "assets/thumb/鲫鱼.jpg"
+  },
+  {
+    "file": "鳊鱼",
+    "name": "鳊鱼",
+    "alias": "武昌鱼 · 团头鲂 · 三角鲂",
+    "latin": "Megalobrama amblycephala",
+    "family": "鲤科 · 鲌亚科",
+    "desc": "体高侧扁呈菱形，头小吻圆、背部隆起，腹棱明显，覆银灰色大鳞。中下层草食偏杂食，喜栖于湖泊与河湾的水草丰茂处，肉质细嫩，是常见养殖与垂钓对象。",
+    "traits": [
+      [
+        "形态",
+        "菱形高体 · 腹棱"
+      ],
+      [
+        "栖息",
+        "中下层 · 水草区"
+      ],
+      [
+        "食性",
+        "草食偏杂食"
+      ]
+    ],
+    "img": "assets/鳊鱼.jpg",
+    "thumb": "assets/thumb/鳊鱼.jpg"
+  },
+  {
+    "file": "翘嘴",
+    "name": "翘嘴",
+    "alias": "翘嘴鲌 · 大白鱼 · 白鱼",
+    "latin": "Culter alburnus",
+    "family": "鲤科 · 鲌亚科",
+    "desc": "体细长侧扁、背部平直，口上位、下颌上翘突出，尾鳍深叉。中上层掠食性鱼类，游速快，主要追捕小型鱼虾，多见于开阔水面，是路亚钓法的常见对象鱼。",
+    "traits": [
+      [
+        "形态",
+        "下颌上翘 · 深叉尾"
+      ],
+      [
+        "栖息",
+        "中上层 · 开阔水面"
+      ],
+      [
+        "食性",
+        "捕食小鱼虾"
+      ]
+    ],
+    "img": "assets/翘嘴.jpg",
+    "thumb": "assets/thumb/翘嘴.jpg"
+  },
+  {
+    "file": "马口",
+    "name": "马口",
+    "alias": "马口鱼 · 桃花鱼",
+    "latin": "Opsariichthys bidens",
+    "family": "鲤科 · 鱲亚科",
+    "desc": "体长侧扁，口裂大，下颌前端有凹缺与突起，形似马口；繁殖期雄鱼体侧浮现蓝绿色横带，胸、腹、臀鳍转橙红。栖息于山涧溪流急流处，捕食小鱼与水生昆虫。",
+    "traits": [
+      [
+        "形态",
+        "大口凹颌 · 蓝绿带"
+      ],
+      [
+        "栖息",
+        "山溪急流"
+      ],
+      [
+        "食性",
+        "肉食 · 小鱼昆虫"
+      ]
+    ],
+    "img": "assets/马口.jpg",
+    "thumb": "assets/thumb/马口.jpg"
+  },
+  {
+    "file": "麦穗",
+    "name": "麦穗",
+    "alias": "麦穗鱼 · 罗汉鱼",
+    "latin": "Pseudorasbora parva",
+    "family": "鲤科 · 鮈亚科",
+    "desc": "体细长、头小、口略上位，体侧常有一条灰黑色纵纹，鳞片边缘色深，因体形如麦穗得名。小型群游性杂食鱼，适应力极强，常见于沟渠、池塘与缓流浅水区。",
+    "traits": [
+      [
+        "形态",
+        "体细长 · 灰黑纵纹"
+      ],
+      [
+        "栖息",
+        "浅水缓流 · 沟渠池塘"
+      ],
+      [
+        "食性",
+        "杂食"
+      ]
+    ],
+    "img": "assets/麦穗.jpg",
+    "thumb": "assets/thumb/麦穗.jpg"
+  },
+  {
+    "file": "鳑鲏",
+    "name": "鳑鲏",
+    "alias": "旁皮鱼 · 彩石鳑鲏类",
+    "latin": "Rhodeus spp.",
+    "family": "鲤科 · 鳑鲏亚科",
+    "desc": "体高侧扁近卵圆形，体侧有蓝绿色虹彩纵带；繁殖期雄鱼色彩艳丽、眼周泛红。最独特的是与河蚌共生的繁殖方式：雌鱼以产卵管将卵送入蚌的鳃腔，幼鱼在蚌体内发育后才离开。",
+    "traits": [
+      [
+        "形态",
+        "卵圆高体 · 虹彩纵带"
+      ],
+      [
+        "栖息",
+        "静水缓流 · 水草区"
+      ],
+      [
+        "繁殖",
+        "与河蚌共生"
+      ]
+    ],
+    "img": "assets/鳑鲏.jpg",
+    "thumb": "assets/thumb/鳑鲏.jpg"
+  },
+  {
+    "file": "虾虎鱼",
+    "name": "虾虎鱼",
+    "alias": "子陵吻虾虎 · 吻虾虎",
+    "latin": "Rhinogobius giurinus",
+    "family": "虾虎鱼科",
+    "desc": "体延长、头大而扁，眼位偏上且常泛绿光，第一背鳍高耸并带橘红斑点；体侧有数条暗色横带，左右腹鳍愈合成吸盘，可吸附在急流石面上。底栖小型鱼，喜栖溪流砾石底，以水生昆虫和小型无脊椎动物为食。",
+    "traits": [
+      [
+        "形态",
+        "绿眼 · 高背鳍 · 腹鳍吸盘"
+      ],
+      [
+        "栖息",
+        "溪流砾石底"
+      ],
+      [
+        "食性",
+        "底栖无脊椎动物"
+      ]
+    ],
+    "img": "assets/虾虎鱼.jpg",
+    "thumb": "assets/thumb/虾虎鱼.jpg"
+  },
+  {
+    "file": "黄骨鱼",
+    "name": "黄骨鱼",
+    "alias": "黄颡鱼 · 黄辣丁 · 昂刺鱼",
+    "latin": "Pelteobagrus fulvidraco",
+    "family": "鲿科",
+    "desc": "体黄褐色带暗色斑块，头扁口大，具四对长须，背鳍与胸鳍有硬棘，背鳍后方有明显脂鳍。底层夜行性肉食鱼，白天潜伏、黄昏后觅食；硬棘带毒腺，徒手抓取需防刺伤。",
+    "traits": [
+      [
+        "形态",
+        "四对须 · 黄色带斑"
+      ],
+      [
+        "栖息",
+        "底层 · 夜行"
+      ],
+      [
+        "食性",
+        "肉食 · 小鱼虾"
+      ]
+    ],
+    "img": "assets/黄骨鱼.jpg",
+    "thumb": "assets/thumb/黄骨鱼.jpg"
+  },
+  {
+    "file": "鲶鱼",
+    "name": "鲶鱼",
+    "alias": "土鲶 · 鲇鱼 · 大口鲶",
+    "latin": "Silurus asotus",
+    "family": "鲶科",
+    "desc": "体延长，前部粗圆、后部侧扁，头宽扁、口裂大，具长须；背鳍短小，臀鳍长且与尾鳍相接，体表光滑无鳞。底层夜行性掠食鱼，靠触须与侧线在浑水中定位猎物。",
+    "traits": [
+      [
+        "形态",
+        "大口长须 · 无鳞"
+      ],
+      [
+        "栖息",
+        "底层 · 夜行"
+      ],
+      [
+        "食性",
+        "掠食鱼虾"
+      ]
+    ],
+    "img": "assets/鲶鱼.jpg",
+    "thumb": "assets/thumb/鲶鱼.jpg"
+  },
+  {
+    "file": "鳜鱼",
+    "name": "鳜鱼",
+    "alias": "翘嘴鳜 · 桂鱼 · 桂花鱼",
+    "latin": "Siniperca chuatsi",
+    "family": "鳜科 · 鲈形目",
+    "desc": "体高侧扁、背部隆起，口大下颌突出，体侧布满不规则暗色斑块与蠕虫状花纹，背鳍前部具硬棘。底层伏击型肉食鱼，常隐于石缝或水草间突袭小鱼虾，肉质细嫩少刺。",
+    "traits": [
+      [
+        "形态",
+        "斑驳虫纹 · 背鳍硬棘"
+      ],
+      [
+        "栖息",
+        "底层 · 石缝水草"
+      ],
+      [
+        "食性",
+        "伏击活鱼虾"
+      ]
+    ],
+    "img": "assets/鳜鱼.jpg",
+    "thumb": "assets/thumb/鳜鱼.jpg"
+  },
+  {
+    "file": "黑鱼",
+    "name": "黑鱼",
+    "alias": "乌鳢 · 生鱼 · 乌鱼",
+    "latin": "Channa argus",
+    "family": "鳢科",
+    "desc": "体延长近圆筒，头尖扁、口大，体侧有数列不规则黑色横斑，背鳍与臀鳍基底很长、尾鳍圆形。具鳃上器可直接呼吸空气，耐低氧、离水存活久；伏击型肉食鱼，亲鱼有护幼行为。",
+    "traits": [
+      [
+        "形态",
+        "黑色横斑 · 长背臀鳍"
+      ],
+      [
+        "栖息",
+        "静水 · 水草丛"
+      ],
+      [
+        "特性",
+        "可直接呼吸空气"
+      ]
+    ],
+    "img": "assets/黑鱼.jpg",
+    "thumb": "assets/thumb/黑鱼.jpg"
+  },
+  {
+    "file": "太阳鱼",
+    "name": "太阳鱼",
+    "alias": "蓝鳃太阳鱼 · 蓝鳃鱼",
+    "latin": "Lepomis macrochirus",
+    "family": "太阳鱼科 · 太阳鱼属",
+    "desc": "体高侧扁呈卵圆形，背鳍前部具硬棘；最醒目的是鳃盖后缘一片黑色耳状软膜，体侧散布橙红斑点与蓝绿色纵纹，腹部转橙黄。原产北美的中小型鱼，我国 1987 年引进养殖；喜栖水草丰茂的静水缓流，杂食偏肉食，繁殖期雄鱼体色艳丽并负责筑巢护卵。",
+    "traits": [
+      [
+        "形态",
+        "黑色耳瓣 · 橙红斑"
+      ],
+      [
+        "栖息",
+        "静水缓流 · 水草区"
+      ],
+      [
+        "食性",
+        "杂食偏肉食"
+      ]
+    ],
+    "img": "assets/太阳鱼.jpg",
+    "thumb": "assets/thumb/太阳鱼.jpg"
+  },
+  {
+    "file": "鲈鱼",
+    "name": "鲈鱼",
+    "alias": "加州鲈 · 大口黑鲈 · 黑鲈",
+    "latin": "Micropterus salmoides",
+    "family": "太阳鱼科 · 黑鲈属",
+    "desc": "体延长略呈纺锤形，口大上位、口裂超过眼后缘，背部青黑、腹部灰白，体侧中部有一条宽阔的黑色纵带；背鳍硬棘部与软条部之间有明显缺刻。原产北美，与太阳鱼同科，现为我国重要的淡水养殖肉食鱼，栖于清澈水体的中下层，伏击捕食小鱼虾。",
+    "traits": [
+      [
+        "形态",
+        "大口 · 体侧黑纵带"
+      ],
+      [
+        "栖息",
+        "中下层 · 清水缓流"
+      ],
+      [
+        "食性",
+        "捕食小鱼虾"
+      ]
+    ],
+    "img": "assets/鲈鱼.jpg",
+    "thumb": "assets/thumb/鲈鱼.jpg"
+  }
+];
+let cur = 0;
+const $ = id => document.getElementById(id);
+const enc = p => encodeURI(p).replace(/#/g,'%23');
+
+function buildThumbs(){
+  $('thumbs').innerHTML = FISH.map((f,i) =>
+    '<div class="thumb" data-i="'+i+'"><img loading="lazy" src="'+enc(f.thumb)+'" alt="'+f.name+'">'+
+    '<div>'+String(i+1).padStart(2,'0')+' '+f.name+'</div></div>').join('');
+}
+function show(i, scroll=true){
+  cur = (i + FISH.length) % FISH.length;
+  const f = FISH[cur];
+  const img = $('mainImg');
+  img.src = enc(f.img); img.alt = f.name;
+  img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
+  $('count').textContent = String(cur+1).padStart(2,'0') + ' / ' + String(FISH.length).padStart(2,'0');
+  $('no').textContent = 'NO.' + String(cur+1).padStart(2,'0');
+  $('name').textContent = f.name;
+  $('alias').textContent = f.alias;
+  $('meta').innerHTML = '<span class="tag">'+f.family+'</span><span class="tag latin">'+f.latin+'</span>';
+  $('desc').textContent = f.desc;
+  $('traits').innerHTML = f.traits.map(t =>
+    '<div class="trait"><b>'+t[0]+'</b><span>'+t[1]+'</span></div>').join('');
+  $('noteBox').innerHTML = f.note ? '<div class="note">'+f.note+'</div>' : '';
+  document.querySelectorAll('.thumb').forEach((el,k) => el.classList.toggle('on', k===cur));
+  if (scroll){
+    const el = document.querySelectorAll('.thumb')[cur];
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }
+}
+$('prev').addEventListener('click', () => show(cur-1));
+$('next').addEventListener('click', () => show(cur+1));
+$('thumbs').addEventListener('click', e => {
+  const t = e.target.closest('.thumb'); if (t) show(+t.dataset.i, false);
+});
+$('thumbs').addEventListener('wheel', e => {
+  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+    $('thumbs').scrollLeft += e.deltaY; e.preventDefault();
+  }
+}, {passive:false});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') show(cur-1);
+  else if (e.key === 'ArrowRight') show(cur+1);
+  else if (e.key === 'Home') show(0);
+  else if (e.key === 'End') show(FISH.length-1);
+  else if (e.key === 'Escape'){ $('lb').style.display='none'; $('lbimg').src=''; }
+});
+let tx = 0, ty = 0;
+$('mainImg').addEventListener('touchstart', e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+$('mainImg').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) show(cur + (dx < 0 ? 1 : -1));
+}, {passive:true});
+const lb = $('lb'), lbimg = $('lbimg');
+$('mainImg').addEventListener('click', () => { lbimg.src = $('mainImg').src; lb.style.display='flex'; });
+lb.addEventListener('click', () => { lb.style.display='none'; lbimg.src=''; });
+
+buildThumbs();
+show(0, false);
+</script>
+</body>
+</html>
