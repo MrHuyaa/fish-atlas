@@ -6,9 +6,9 @@
 
 ## 在线访问
 
-<https://mrhuyaa.github.io/长江流域淡水鱼图鉴/>
+<https://mrhuyaa.github.io/fish-atlas/>
 
-（链接含中文，浏览器会自动进行 URL 编码，直接点击即可。）
+> 仓库名使用 ASCII slug `fish-atlas`：GitHub 不支持纯中文仓库名（会被规范化为 `-`）。中文全名保留在网页标题与仓库描述中。
 
 ## 本地运行
 
