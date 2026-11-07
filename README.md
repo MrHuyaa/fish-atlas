@@ -14,6 +14,16 @@
 
 直接用浏览器打开 `index.html`，无需构建、无需服务器、无外部依赖。
 
+## AMOLED 圆屏版（ESP32）
+
+把同一套 18 种鱼搬上 **ESP32-S3-Touch-AMOLED-1.75** 的 466 × 466 圆屏，做成不联网、开机就能翻的科普小图鉴，给小孩认鱼用。后续会按同一套模板继续做常见鸟类、常见植物、汽车等图鉴。
+
+- [介绍 · 用途 · 后续规划](amoled/readmez.md)
+- [技术说明与换图鉴模板](amoled/README.md)
+- [下载完整工程包 / 资源镜像（Release v1.0.0）](https://github.com/MrHuyaa/fish-atlas/releases/tag/v1.0.0)
+
+> 完整包（zip 与 LittleFS 镜像）走 Release 附件，仓库只放说明、配置模板与预览图。
+
 ## 目录说明
 
 | 路径 | 说明 |
@@ -21,4 +31,5 @@
 | `index.html` | 单文件页面，数据与样式均内联 |
 | `assets/` | 18 张 1000 × 750 主图 |
 | `assets/thumb/` | 18 张 260 × 195 缩略图 |
+| `amoled/` | 圆屏版说明、换图鉴模板与预览图 |
 | `pool/` | 原始母版图，体积较大，已在 `.gitignore` 中排除 |

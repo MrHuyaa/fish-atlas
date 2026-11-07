@@ -1,0 +1,28 @@
+{
+  "_说明": "复制本文件改成自己的图鉴（bird.json / insect.json ...），只需要换 items 和图片。",
+  "atlas": "图鉴名称",
+  "out": "../data/pages",
+  "theme": {
+    "bg": [0, 0, 0], "ink": [240, 244, 246], "muted": [128, 152, 163],
+    "accent": [94, 200, 226], "scrim_alpha": 232
+  },
+  "card": {
+    "fill": 0.92, "name_size": 54, "name_y": 378,
+    "bar_y": 408, "bar_w": 54, "counter_y": 434, "name_max_w": 380
+  },
+  "detail": {
+    "icon": 108, "icon_y": 82, "name_size": 30, "name_y": 152, "alias_y": 182,
+    "meta_y": 204, "body_size": 14, "body_max_w": 286, "body_y": 246,
+    "line_h": 21, "footer_y": 442
+  },
+  "items": [
+    {
+      "name": "白鹭",
+      "alias": "鹭鸶 · 雪鹭",
+      "family": "鹭科 · 鹭属",
+      "latin": "Egretta garzetta",
+      "desc": "通体白色，嘴长而尖，腿细长，繁殖期枕部生出两条细长饰羽。栖息于稻田、河滩、水库边，以小鱼、虾、蛙类和昆虫为食，常静立浅水中伏击猎物。",
+      "img": "../assets/bird/白鹭.jpg"
+    }
+  ]
+}
